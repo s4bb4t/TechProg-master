@@ -1,89 +1,140 @@
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <cstring>
 #include <string>
+#include <sstream>
 #include <vector>
 
 using namespace std;
 
-// Функция для вывода матрицы
+// Функция для вывода матрицы с использованием манипуляторов
 void printMatrix(int n) {
-    for (int i = 1; i <= n; i++) {
+    for (int i = n; i >= 1; i--) {
+        cout << setw(3) << i;  // Применяем setw для выравнивания чисел
         for (int j = 1; j <= n; j++) {
-            // выводим звёздочки в соответствии с заданием
-            if (j <= i) {
-                cout << "* ";
-            } else {
-                cout << "  "; 
+            if (j <= n - i + 1) {
+                cout << setw(3) << "*";  // Используем setw для выравнивания звездочек
             }
         }
-        cout << endl; // переход на новую строку
+        cout << endl;
     }
 }
 
-// Функция для обмена слов "Zero" и "Null"
-char* swapWords(const char* input) {
-    size_t length = strlen(input); // определяем длину строки
-    char* output = new char[length + 1]; // создаём новый массив
-    strcpy(output, input); // копируем исходную строку
+// Функция для обмена всех слов "Two" и "Null"
+string swapWords(string input) {
+    // Разбиваем строку на слова и сохраняем в вектор
+    istringstream iss(input);
+    vector<string> words;
+    string word;
 
-    // находим позиции слов "Zero" и "Null"
-    char* zeroPos = strstr(output, "Zero");
-    char* nullPos = strstr(output, "Null");
-
-    // если оба слова найдены, меняем их местами
-    if (zeroPos && nullPos) {
-        char temp[5]; // временный массив для хранения слова
-        strncpy(temp, zeroPos, 4); // копируем "Zero" во временный массив
-        temp[4] = '\0'; // добавляем нулевой символ в конец
-
-        strncpy(zeroPos, nullPos, 4); // заменяем "Zero" на "Null"
-        strncpy(nullPos, temp, 4); // заменяем "Null" на "Zero"
+    // Считываем все слова в вектор
+    while (iss >> word) {
+        words.push_back(word);
     }
 
-    return output; // возвращаем преобразованную строку
+    // Переменные для хранения индексов слов "Two" и "Null"
+    int indexTwo = -1;
+    int indexNull = -1;
+
+    // Ищем индексы слов "Two" и "Null"
+    for (size_t i = 0; i < words.size(); ++i) {
+        if (words[i] == "Two") {
+            indexTwo = i;
+        }
+        if (words[i] == "Null") {
+            indexNull = i;
+        }
+    }
+
+    // Если оба слова найдены, меняем их местами
+    if (indexTwo != -1 && indexNull != -1) {
+        swap(words[indexTwo], words[indexNull]);
+    }
+
+    // Собираем строку обратно
+    stringstream result;
+    for (size_t i = 0; i < words.size(); ++i) {
+        result << words[i];
+        if (i != words.size() - 1) {
+            result << " "; // Добавляем пробел между словами
+        }
+    }
+
+    return result.str();
 }
 
 // Структура для описания предмета
 struct Item {
-    string name; // имя предмета
-    double price; // цена предмета
+    string name;   // Имя предмета
+    double price;  // Цена предмета
+    double weight; // Вес предмета
+    double value;  // Вычисляемый показатель (например, ценность на единицу веса)
 };
 
 // Функция для работы с массивом структур и записи в файл
 void saveItemsToFile() {
+    // Массив с данными о предметах
     Item items[5] = {
-        {"Предмет 1", 100.0},
-        {"Предмет 2", 200.5},
-        {"Предмет 3", 300.75},
-        {"Предмет 4", 150.25},
-        {"Предмет 5", 400.0}
+        {"Item 1", 100.0, 1.5, 0.0},
+        {"Item 2", 200.5, 2.0, 0.0},
+        {"Item 3", 300.75, 1.8, 0.0},
+        {"Item 4", 150.25, 1.2, 0.0},
+        {"Item 5", 400.0, 2.5, 0.0}
     };
 
-    // Запись в файл
-    ofstream outFile("items.txt"); // открываем файл для записи
-    if (outFile.is_open()) { // проверяем, открылся ли файл
-        for (const auto& item : items) {
-            outFile << "Имя: " << item.name << ", Цена: " << item.price << endl;
+    // Вычисление показателя ценности для каждого предмета
+    for (auto& item : items) {
+        item.value = item.price / item.weight;
+    }
+
+    // Открываем файл для записи
+    ofstream outFile("items.txt");
+    if (outFile.is_open()) {
+        // Записываем имена предметов
+        for (int i = 0; i < 5; ++i) {
+            outFile << setw(15) << left << items[i].name;  // Имя предмета
         }
-        outFile.close(); // закрываем файл
+        outFile << endl;
+
+        // Записываем цены
+        for (int i = 0; i < 5; ++i) {
+            outFile << setw(15) << fixed << setprecision(1) << items[i].price;  // Цена
+        }
+        outFile << endl;
+
+        // Записываем веса
+        for (int i = 0; i < 5; ++i) {
+            outFile << setw(15) << fixed << setprecision(1) << items[i].weight;  // Вес
+        }
+        outFile << endl;
+
+        // Записываем ценности
+        for (int i = 0; i < 5; ++i) {
+            outFile << setw(15) << fixed << setprecision(4) << items[i].value;  // Ценность
+        }
+        outFile << endl;
+
+        outFile.close();  // Закрываем файл
         cout << "Данные о предметах записаны в файл items.txt." << endl;
+    } else {
+        cout << "Ошибка: не удалось открыть файл." << endl;
     }
 }
 
 // Функция для чтения данных из файла
 void readItemsFromFile() {
-    ifstream inFile("items.txt"); // открываем файл для чтения
+    ifstream inFile("items.txt");
     if (!inFile) {
         cout << "Ошибка: не удалось открыть файл." << endl;
         return;
     }
 
     string line;
-    while (getline(inFile, line)) { // считываем строки из файла
+    while (getline(inFile, line)) {
         cout << line << endl;
     }
-    inFile.close(); // закрываем файл
+    inFile.close();
 }
 
 // Основная функция
@@ -92,7 +143,6 @@ int main() {
     int task, size;
 
     do {
-        // Меню для выбора задания
         cout << "Выберите задание:\n1 - Задание 1 (матрица)\n2 - Задание 2 (строка)\n3 - Задание 3 (предметы)\n4 - Чтение из файла\n0 - Выход\n";
         cin >> task;
 
@@ -103,18 +153,26 @@ int main() {
                 printMatrix(size); // выводим матрицу заданного размера
                 break;
             case 2: {
-                const char* original = "Zero Two Null"; // исходная строка
-                char* transformed = swapWords(original); // вызываем функцию для преобразования
-                cout << "Исходная строка: " << original << endl; // выводим исходную строку
-                cout << "Преобразованная строка: " << transformed << endl; // выводим преобразованную строку
-                delete[] transformed; // освобождаем память
+                cout << "Введите исходную строку: ";
+                cin.ignore();  // Игнорируем символ новой строки после числа
+                string inputStr;
+                getline(cin, inputStr);
+
+                // Динамически выделяем память для строки
+                string *inputPtr = new string(inputStr);
+
+                string transformed = swapWords(*inputPtr);
+                cout << "Исходная строка: " << *inputPtr << endl;
+                cout << "Преобразованная строка: " << transformed << endl;
+
+                delete inputPtr;  // Освобождаем память
                 break;
             }
             case 3:
-                saveItemsToFile(); // вызываем функцию для записи предметов в файл
+                saveItemsToFile();
                 break;
             case 4:
-                readItemsFromFile(); // читаем данные из файла
+                readItemsFromFile();
                 break;
             case 0:
                 cout << "Выход из программы." << endl;
