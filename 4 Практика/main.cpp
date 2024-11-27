@@ -8,14 +8,15 @@ private:
     float x, y; // Закрытые переменные для координат
 
 public:
-    // Конструктор с параметрами для инициализации координат
+    // Конструкторы
+    Point() : x(0), y(0) {} // Конструктор по умолчанию
     Point(float xCoord, float yCoord) : x(xCoord), y(yCoord) {}
 
     // Функции доступа к закрытым переменным
     float getX() const { return x; }
     float getY() const { return y; }
 
-    // Деструктор, сообщающий о разрушении объекта
+    // Деструктор
     ~Point() {
         cout << "Точка с координатами (" << x << ", " << y << ") уничтожена." << endl;
     }
@@ -33,6 +34,18 @@ float calculateRectangleArea(Point* points) {
     return length * width; // Площадь = длина * ширина
 }
 
+// Функция для расчета длины сторон и гипотенузы
+void calculateSidesAndHypotenuse(Point* points) {
+    float length = Point::distance(points[0], points[1]);
+    float width = Point::distance(points[1], points[2]);
+    float hypotenuse = sqrt(pow(length, 2) + pow(width, 2));
+
+    cout << "Длина: " << length << endl;
+    cout << "Ширина: " << width << endl;
+    cout << "Гипотенуза: " << hypotenuse << endl;
+    cout << endl;
+}
+
 // Задание 2: Класс для представления локальной сети
 class LocalNetwork {
 private:
@@ -40,7 +53,7 @@ private:
     float installationCostPerDevice; // Стоимость установки на одно устройство
 
 public:
-    // Конструктор для инициализации количества устройств и стоимости установки
+    // Конструктор
     LocalNetwork(int devices, float cost) : numberOfDevices(devices), installationCostPerDevice(cost) {}
 
     // Метод для расчета минимальной стоимости установки
@@ -48,52 +61,72 @@ public:
         return numberOfDevices * installationCostPerDevice;
     }
 
-    // Деструктор, сообщающий о разрушении объекта
+    // Метод для вычисляемого показателя: стоимость на устройство
+    float calculateCostPerDevice() const {
+        return installationCostPerDevice;
+    }
+
+    // Деструктор
     ~LocalNetwork() {
         cout << "Объект LocalNetwork уничтожен." << endl;
     }
 };
 
-// Функция для выполнения задания 1: вычисление площади прямоугольника
+// Функция для выполнения задания 1
 void task1() {
-    float a,b;
-    cout << "Введите длины сторон:" << endl;
-
+    float a, b;
+    cout << "Введите длины сторон прямоугольника:\n";
     cout << "Ширина: "; cin >> a;
     cout << "Длина: "; cin >> b;
 
     // Создание массива из 4 объектов класса Point
     Point* rectangleVertices = new Point[4]{
-        Point(0.0, 0.0), // Нижний левый угол
-        Point(0.0, a), // Верхний левый угол
-        Point(b, a), // Верхний правый угол
-        Point(b, 0.0)  // Нижний правый угол
+        Point(0.0, 0.0),
+        Point(0.0, a),
+        Point(b, a),
+        Point(b, 0.0)
     };
 
     // Вычисление площади прямоугольника
     float area = calculateRectangleArea(rectangleVertices);
     cout << "Площадь прямоугольника: " << area << endl;
+    cout << endl;
+
+    // Вычисление сторон и гипотенузы
+    calculateSidesAndHypotenuse(rectangleVertices);
 
     // Освобождение памяти
     delete[] rectangleVertices;
 }
 
-// Функция для выполнения задания 2: расчет стоимости установки
+// Функция для выполнения задания 2
 void task2() {
-    int devices;
-    float costPerDevice;
+    const int NETWORK_COUNT = 6;
+    LocalNetwork* networks[NETWORK_COUNT];
 
-    // Запрос у пользователя данных для расчета
-    cout << "Введите количество устройств в сети: ";
-    cin >> devices;
-    cout << "Введите стоимость установки на одно устройство: ";
-    cin >> costPerDevice;
+    // Ввод данных
+    for (int i = 0; i < NETWORK_COUNT; ++i) {
+        int devices;
+        float costPerDevice;
 
-    // Создание локальной сети
-    LocalNetwork network(devices, costPerDevice);
-    // Расчет минимальной стоимости установки
-    float installationCost = network.calculateMinimumInstallationCost();
-    cout << "Минимальная стоимость установки: " << installationCost << endl;
+        cout << "\nСеть " << i + 1 << ":\n";
+        cout << "Количество устройств: ";
+        cin >> devices;
+        cout << "Стоимость установки на устройство: ";
+        cin >> costPerDevice;
+
+        networks[i] = new LocalNetwork(devices, costPerDevice);
+    }
+
+    // Расчет минимальной стоимости установки и вычисляемого показателя
+    for (int i = 0; i < NETWORK_COUNT; ++i) {
+        cout << "\nСеть " << i + 1 << ":\n";
+        cout << "Минимальная стоимость установки: " << networks[i]->calculateMinimumInstallationCost() << endl;
+        cout << "Стоимость на одно устройство: " << networks[i]->calculateCostPerDevice() << endl;
+
+        // Уничтожение объекта
+        delete networks[i];
+    }
 }
 
 int main() {
@@ -101,18 +134,18 @@ int main() {
     do {
         // Меню программы
         cout << "\nМеню:\n";
-        cout << "1 - Вычислить площадь прямоугольника (Задание 1)\n";
-        cout << "2 - Вычислить стоимость установки сети (Задание 2)\n";
+        cout << "1 - Задание 1: Прямоугольник\n";
+        cout << "2 - Задание 2: Локальная сеть\n";
         cout << "0 - Выход\n";
         cout << "Введите ваш выбор: ";
         cin >> choice;
 
         switch (choice) {
             case 1:
-                task1(); // Выполнение задания 1
+                task1();
                 break;
             case 2:
-                task2(); // Выполнение задания 2
+                task2();
                 break;
             case 0:
                 cout << "Выход из программы..." << endl;
@@ -123,5 +156,5 @@ int main() {
         }
     } while (choice != 0);
 
-    return 0; // Завершение программы
+    return 0;
 }
