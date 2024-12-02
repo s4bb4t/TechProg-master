@@ -1,43 +1,37 @@
 #include "LocalNetwork.h"
 
-// Конструктор для базового класса LocalNetwork
-LocalNetwork::LocalNetwork(string name, double cost)
-    : networkName(name), installationCost(cost) {}
+// LocalNetwork
+LocalNetwork::LocalNetwork(string name, double cost) : networkName(name), installationCost(cost) {}
+LocalNetwork::~LocalNetwork() {}
 
-// Метод для отображения деталей сети
-void LocalNetwork::showDetails() {
-    cout << "Сеть: " << networkName << endl;
-    cout << "Стоимость монтажа: " << installationCost << " рублей" << endl;
-}
-
-// Конструктор для класса PeerToPeerNetwork
+// PeerToPeerNetwork
 PeerToPeerNetwork::PeerToPeerNetwork(string name, double cost, int nodes)
     : LocalNetwork(name, cost), numberOfNodes(nodes) {}
 
-// Переопределённый метод для отображения деталей одноранговой сети
-void PeerToPeerNetwork::showDetails() {
-    LocalNetwork::showDetails(); // Вызов метода базового класса
-    cout << "Тип сети: Одноранговая сеть: все узлы равны и могут выступать как клиент и сервер." << endl;
-    cout << "Количество узлов: " << numberOfNodes << endl;
+void PeerToPeerNetwork::showDetails() const {
+    cout << "Сеть: " << networkName << "\nТип: Одноранговая сеть\nКоличество узлов: " << numberOfNodes << "\nСтоимость: " << installationCost << endl;
 }
 
-// Метод для расчета стоимости установки для одноранговой сети
-double PeerToPeerNetwork::calculateInstallationCost() {
-    return installationCost + numberOfNodes * 500; // Стоимость монтажа + дополнительная стоимость за узлы
+double PeerToPeerNetwork::calculateInstallationCost() const {
+    return installationCost + numberOfNodes * 500;
 }
 
-// Конструктор для класса ClientServerNetwork
+double computeIndicator(const PeerToPeerNetwork& network) {
+    return network.calculateInstallationCost() * 1.1;
+}
+
+// ClientServerNetwork
 ClientServerNetwork::ClientServerNetwork(string name, double cost, int clients)
     : LocalNetwork(name, cost), numberOfClients(clients) {}
 
-// Переопределённый метод для отображения деталей сети типа клиент-сервер
-void ClientServerNetwork::showDetails() {
-    LocalNetwork::showDetails(); // Вызов метода базового класса
-    cout << "Тип сети: Сеть типа клиент-сервер: один сервер обслуживает несколько клиентов." << endl;
-    cout << "Количество клиентов: " << numberOfClients << endl;
+void ClientServerNetwork::showDetails() const {
+    cout << "Сеть: " << networkName << "\nТип: Сеть клиент-сервер\nКоличество клиентов: " << numberOfClients << "\nСтоимость: " << installationCost << endl;
 }
 
-// Метод для расчета стоимости установки для сети типа клиент-сервер
-double ClientServerNetwork::calculateInstallationCost() {
-    return installationCost + numberOfClients * 1000; // Стоимость монтажа + дополнительная стоимость за клиентов
+double ClientServerNetwork::calculateInstallationCost() const {
+    return installationCost + numberOfClients * 1000;
+}
+
+double computeIndicator(const ClientServerNetwork& network) {
+    return network.calculateInstallationCost() * 1.2;
 }

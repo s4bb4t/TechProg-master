@@ -1,34 +1,49 @@
-#include <iostream>
-#include "LocalNetwork.h" // Подключаем заголовочный файл с определением классов
-
-using namespace std;
+#include "LocalNetwork.h"
+#include <cstdlib>
+#include <ctime>
 
 int main() {
-    // Создание динамических массивов объектов производных классов
     const int arraySize = 5;
-    PeerToPeerNetwork* peerToPeerNetworks = new PeerToPeerNetwork[arraySize];
-    ClientServerNetwork* clientServerNetworks = new ClientServerNetwork[arraySize];
+    int price, cnt;
+    srand(static_cast<unsigned>(time(nullptr)));
 
-    // Заполнение массивов случайными значениями
+    cout << "Введите цену для установки устройств" << endl;
+    cin >> price;
+    cout << "Введите количество устройств" << endl;
+    cin >> cnt;
+    
+    // Создаем массивы сетей
+    PeerToPeerNetwork* peerNetworks = new PeerToPeerNetwork[arraySize]{
+        PeerToPeerNetwork("PeerNet1", price, cnt),
+        PeerToPeerNetwork("PeerNet2", price, cnt),
+        PeerToPeerNetwork("PeerNet3", price, cnt),
+        PeerToPeerNetwork("PeerNet4", price, cnt),
+        PeerToPeerNetwork("PeerNet5", price, cnt)
+    };
+
+    ClientServerNetwork* clientNetworks = new ClientServerNetwork[arraySize]{
+        ClientServerNetwork("ClientNet1", 5000, 10),
+        ClientServerNetwork("ClientNet2", 6000, 15),
+        ClientServerNetwork("ClientNet3", 4500, 12),
+        ClientServerNetwork("ClientNet4", 5200, 20),
+        ClientServerNetwork("ClientNet5", 5600, 18)
+    };
+
+    // Выводим информацию о сетях
     for (int i = 0; i < arraySize; ++i) {
-        peerToPeerNetworks[i] = PeerToPeerNetwork("Peer Network " + to_string(i+1), rand() % 5000 + 1000, rand() % 20 + 1);
-        clientServerNetworks[i] = ClientServerNetwork("Client-Server Network " + to_string(i+1), rand() % 5000 + 1000, rand() % 10 + 1);
+        cout << "Одноранговая сеть #" << (i + 1) << ":\n";
+        peerNetworks[i].showDetails();
+        cout << "Итоговая стоимость монтажа: " << peerNetworks[i].calculateInstallationCost() << endl;
+        cout << "Индикатор: " << computeIndicator(peerNetworks[i]) << endl << endl;
+
+        cout << "Сеть клиент-сервер #" << (i + 1) << ":\n";
+        clientNetworks[i].showDetails();
+        cout << "Итоговая стоимость монтажа: " << clientNetworks[i].calculateInstallationCost() << endl;
+        cout << "Индикатор: " << computeIndicator(clientNetworks[i]) << endl << endl;
     }
 
-    // Вывод информации и расчет итоговой стоимости монтажа
-    for (int i = 0; i < arraySize; ++i) {
-        cout << "Детали одноранговой сети #" << (i+1) << ":" << endl;
-        peerToPeerNetworks[i].showDetails();
-        cout << "Итоговая стоимость монтажа: " << peerToPeerNetworks[i].calculateInstallationCost() << " рублей" << endl << endl;
+    delete[] peerNetworks;
+    delete[] clientNetworks;
 
-        cout << "Детали сети типа клиент-сервер #" << (i+1) << ":" << endl;
-        clientServerNetworks[i].showDetails();
-        cout << "Итоговая стоимость монтажа: " << clientServerNetworks[i].calculateInstallationCost() << " рублей" << endl << endl;
-    }
-
-    // Освобождение памяти
-    delete[] peerToPeerNetworks;
-    delete[] clientServerNetworks;
-
-    return 0; // Завершение программы
+    return 0;
 }

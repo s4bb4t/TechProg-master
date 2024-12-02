@@ -139,7 +139,6 @@ void readItemsFromFile() {
 
 // Основная функция
 int main() {
-    char choice;
     int task, size;
 
     do {

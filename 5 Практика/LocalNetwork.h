@@ -1,43 +1,42 @@
-#ifndef LOCALNETWORK_H // Защита от повторного включения
+#ifndef LOCALNETWORK_H
 #define LOCALNETWORK_H
 
 #include <iostream>
 #include <string>
-
 using namespace std;
 
-// Базовый класс для локальных сетей
 class LocalNetwork {
 protected:
-    string networkName; // Название сети
-    double installationCost; // Стоимость установки
+    string networkName;
+    double installationCost;
 
 public:
-    LocalNetwork(string name, double cost); // Конструктор
-    virtual void showDetails(); // Метод для отображения деталей сети
-    virtual double calculateInstallationCost() = 0; // Чисто виртуальный метод для расчета стоимости установки
+    LocalNetwork(string name = "Unnamed", double cost = 0.0);
+    virtual ~LocalNetwork();
+    virtual void showDetails() const = 0;
+    virtual double calculateInstallationCost() const = 0;
 };
 
-// Класс для одноранговых сетей
 class PeerToPeerNetwork : private LocalNetwork {
 private:
-    int numberOfNodes; // Количество узлов
+    int numberOfNodes;
 
 public:
-    PeerToPeerNetwork(string name, double cost, int nodes); // Конструктор
-    void showDetails(); // Метод для отображения деталей сети
-    double calculateInstallationCost(); // Метод для расчета стоимости установки
+    PeerToPeerNetwork(string name, double cost, int nodes);
+    void showDetails() const override;
+    double calculateInstallationCost() const override;
+    friend double computeIndicator(const PeerToPeerNetwork& network);
 };
 
-// Класс для сетей типа клиент-сервер
 class ClientServerNetwork : private LocalNetwork {
 private:
-    int numberOfClients; // Количество клиентов
+    int numberOfClients;
 
 public:
-    ClientServerNetwork(string name, double cost, int clients); // Конструктор
-    void showDetails(); // Метод для отображения деталей сети
-    double calculateInstallationCost(); // Метод для расчета стоимости установки
+    ClientServerNetwork(string name, double cost, int clients);
+    void showDetails() const override;
+    double calculateInstallationCost() const override;
+    friend double computeIndicator(const ClientServerNetwork& network);
 };
 
 #endif // LOCALNETWORK_H

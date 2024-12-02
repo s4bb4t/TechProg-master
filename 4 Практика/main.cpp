@@ -12,32 +12,45 @@ public:
     Point() : x(0), y(0) {} // Конструктор по умолчанию
     Point(float xCoord, float yCoord) : x(xCoord), y(yCoord) {}
 
-    // Функции доступа к закрытым переменным
-    float getX() const { return x; }
-    float getY() const { return y; }
-
     // Деструктор
     ~Point() {
         cout << "Точка с координатами (" << x << ", " << y << ") уничтожена." << endl;
     }
 
-    // Статический метод для вычисления расстояния между двумя точками
-    static float distance(const Point &p1, const Point &p2) {
-        return sqrt(pow(p2.x - p1.x, 2) + pow(p2.y - p1.y, 2));
-    }
+    friend float getX(const Point& p);
+    friend float getY(const Point& p);
+
+    friend float distance(const Point& p1, const Point& p2);
+    friend float calculateRectangleArea(Point* points);
+    friend void calculateSidesAndHypotenuse(Point* points);
 };
+
+// Дружественная функция для получения координаты X
+float getX(const Point& p) {
+    return p.x;
+}
+
+// Дружественная функция для получения координаты Y
+float getY(const Point& p) {
+    return p.y;
+}
+
+// Дружественная функция для вычисления расстояния между двумя точками
+float distance(const Point& p1, const Point& p2) {
+    return sqrt(pow(p2.x - p1.x, 2) + pow(p2.y - p1.y, 2));
+}
 
 // Дружественная функция для вычисления площади прямоугольника
 float calculateRectangleArea(Point* points) {
-    float length = Point::distance(points[0], points[1]);
-    float width = Point::distance(points[1], points[2]);
+    float length = distance(points[0], points[1]);
+    float width = distance(points[1], points[2]);
     return length * width; // Площадь = длина * ширина
 }
 
-// Функция для расчета длины сторон и гипотенузы
+// Дружественная функция для расчета длины сторон и гипотенузы
 void calculateSidesAndHypotenuse(Point* points) {
-    float length = Point::distance(points[0], points[1]);
-    float width = Point::distance(points[1], points[2]);
+    float length = distance(points[0], points[1]);
+    float width = distance(points[1], points[2]);
     float hypotenuse = sqrt(pow(length, 2) + pow(width, 2));
 
     cout << "Длина: " << length << endl;
@@ -102,19 +115,16 @@ void task1() {
 // Функция для выполнения задания 2
 void task2() {
     const int NETWORK_COUNT = 6;
+    int devices;
+    float costPerDevice;
     LocalNetwork* networks[NETWORK_COUNT];
 
-    // Ввод данных
+    cout << "Количество устройств: ";
+    cin >> devices;
+    cout << "Стоимость установки на устройство: ";
+    cin >> costPerDevice;
+
     for (int i = 0; i < NETWORK_COUNT; ++i) {
-        int devices;
-        float costPerDevice;
-
-        cout << "\nСеть " << i + 1 << ":\n";
-        cout << "Количество устройств: ";
-        cin >> devices;
-        cout << "Стоимость установки на устройство: ";
-        cin >> costPerDevice;
-
         networks[i] = new LocalNetwork(devices, costPerDevice);
     }
 
@@ -134,8 +144,8 @@ int main() {
     do {
         // Меню программы
         cout << "\nМеню:\n";
-        cout << "1 - Задание 1: Прямоугольник\n";
-        cout << "2 - Задание 2: Локальная сеть\n";
+        cout << "1 - Прямоугольник\n";
+        cout << "2 - Локальная сеть\n";
         cout << "0 - Выход\n";
         cout << "Введите ваш выбор: ";
         cin >> choice;
@@ -152,7 +162,6 @@ int main() {
                 break;
             default:
                 cout << "Ошибка: неверный выбор. Попробуйте снова." << endl;
-                break;
         }
     } while (choice != 0);
 

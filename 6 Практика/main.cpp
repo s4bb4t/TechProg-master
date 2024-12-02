@@ -1,55 +1,63 @@
 #include <iostream>
-#include "operations.h"
+#include "Network.h"
 
-using namespace std;
+using namespace Network;
+
+void showMenu() {
+    std::cout << "\n=========================================\n";
+    std::cout << "Меню:\n";
+    std::cout << "1. Показать информацию о одноранговой сети (P2P)\n";
+    std::cout << "2. Показать информацию о клиент-серверной сети\n";
+    std::cout << "3. Показать общее количество сетей\n";
+    std::cout << "4. Сравнить минимальные стоимости монтажа\n";
+    std::cout << "5. Выход\n";
+    std::cout << "=========================================\n";
+}
 
 int main() {
-    const int arraySize = 5; // Размер массивов
-    LocalNetwork* networks[arraySize]; // Массив указателей на базовый класс
+    PeerToPeerNetwork p2pNetwork("Домашняя сеть", 5000, 100, 5, true);
+    ClientServerNetwork csNetwork("Корпоративная сеть", 15000, 500, 50, true);
 
-    // Создание объектов производных классов
-    for (int i = 0; i < arraySize; ++i) {
-        if (i % 2 == 0) {
-            networks[i] = new PeerToPeerNetwork("Сеть P2P " + to_string(i + 1), 2000 + i * 100, rand() % 10 + 1);
-        } else {
-            networks[i] = new ClientServerNetwork("Сеть C/S " + to_string(i + 1), 3000 + i * 150, rand() % 5 + 1);
-        }
-    }
-
-    // Меню для демонстрации содержимого проекта
     int choice;
-    do {
-        cout << "\nМеню:\n";
-        cout << "1. Показать характеристики сетей\n";
-        cout << "2. Расчитать стоимость установки сетей\n";
-        cout << "0. Выход\n";
-        cout << "Выберите опцию: ";
-        cin >> choice;
+    bool exit = true;
+    while (exit) {
+        showMenu();
+        std::cout << "\nВыберите действие: ";
+        std::cin >> choice;
 
         switch (choice) {
             case 1:
-                for (int i = 0; i < arraySize; ++i) {
-                    networks[i]->showDetails();
-                }
+                p2pNetwork.showDetails();
                 break;
             case 2:
-                for (int i = 0; i < arraySize; ++i) {
-                    cout << "Итоговая стоимость монтажа для " << networks[i]->getNetworkName() << ": "
-                         << networks[i]->calculateInstallationCost() << " рублей" << endl;
+                csNetwork.showDetails();
+                break;
+            case 3:
+                std::cout << "Общее количество сетей: " << LocalNetwork::getTotalNetworks() << "\n";
+                break;
+            case 4: {
+                double p2pMinCost = p2pNetwork.calculateInstallationCost(0.05);  // Пример применения скидки 5%
+                double csMinCost = csNetwork.calculateInstallationCost(0.10);  // Пример применения скидки 10%
+
+                std::cout << "Минимальная стоимость установки P2P: " << p2pMinCost << " руб.\n";
+                std::cout << "Минимальная стоимость установки Клиент-серверной сети: " << csMinCost << " руб.\n";
+
+                if (p2pNetwork < csNetwork) {
+                    std::cout << "P2P сеть имеет меньшую минимальную стоимость установки.\n";
+                } else {
+                    std::cout << "Клиент-серверная сеть имеет меньшую минимальную стоимость установки.\n";
                 }
                 break;
-            case 0:
-                cout << "Выход из программы." << endl;
+            }
+            case 5:
+                std::cout << "Выход из программы.\n";
+                exit = false;
                 break;
             default:
-                cout << "Неверный выбор. Пожалуйста, попробуйте снова." << endl;
+                std::cout << "Неверный выбор. Попробуйте снова.\n";
+                break;
         }
-    } while (choice != 0);
-
-    // Освобождение памяти
-    for (int i = 0; i < arraySize; ++i) {
-        delete networks[i];
     }
 
-    return 0; // Завершение программы
+    return 0;
 }
