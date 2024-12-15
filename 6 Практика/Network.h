@@ -1,54 +1,104 @@
-#ifndef NETWORK_H
-#define NETWORK_H
-
+#pragma once
 #include <iostream>
+#include <iomanip>
 #include <string>
 
 namespace Network {
 
-// Базовый класс для всех типов сетей
 class LocalNetwork {
 protected:
-    std::string networkName;   // Название сети
-    double installationCost;   // Стоимость установки
-    int networkSpeed;          // Скорость сети (Мбит/с)
-    static int totalNetworks;  // Статический член для общего количества объектов
+    std::string networkName;
+    double installationCost;
+    int networkSpeed;
+    static int totalNetworks;
 
 public:
-    LocalNetwork(std::string name, double cost, int speed);  // Конструктор
-    virtual ~LocalNetwork();  // Деструктор
-    virtual void showDetails() const = 0;  // Виртуальный метод для вывода характеристик
-    virtual double calculateInstallationCost() const = 0;   // Чисто виртуальный метод для расчета стоимости установки
-    static int getTotalNetworks();  // Статический метод для получения общего количества объектов
-    std::string getNetworkName() const;  // Метод для получения названия сети
+    LocalNetwork(std::string name = "Default Network", double cost = 0.0, int speed = 0)
+        : networkName(name), installationCost(cost), networkSpeed(speed) {
+        ++totalNetworks;
+    }
+
+    virtual ~LocalNetwork() { --totalNetworks; }
+
+    virtual void showDetails() const = 0;
+
+    virtual double calculateInstallationCost() const = 0;
+
+    virtual double calculateInstallationCost(double discount) const {
+        return installationCost * (1 - discount);
+    }
+
+    static int getTotalNetworks() { return totalNetworks; }
+
+    std::string getNetworkName() const { return networkName; }
 };
 
-// Класс для одноранговых сетей
-class PeerToPeerNetwork : private LocalNetwork {
+int LocalNetwork::totalNetworks = 0;
+
+class PeerToPeerNetwork : public LocalNetwork {
 private:
-    int numberOfNodes;   // Количество узлов
-    bool isEncrypted;    // Шифрование данных
+    int numberOfNodes;
+    bool isEncrypted;
+    static std::string networkType;
 
 public:
-    PeerToPeerNetwork(std::string name, double cost, int speed, int nodes, bool encrypted);  // Конструктор
-    void showDetails() const override;  // Переопределенный метод для отображения характеристик
-    double calculateInstallationCost() const override;  // Переопределенный метод для расчета стоимости установки
-    double getMinimumCost() const;  // Минимальная стоимость установки
+    PeerToPeerNetwork(std::string name = "P2P Network", double cost = 0.0, int speed = 0, int nodes = 0, bool encrypted = false)
+        : LocalNetwork(name, cost, speed), numberOfNodes(nodes), isEncrypted(encrypted) {}
+
+    void showDetails() const override {
+        std::cout << std::setw(20) << networkName << std::setw(15) << installationCost
+                  << std::setw(15) << networkSpeed << std::setw(10) << numberOfNodes
+                  << std::setw(10) << (isEncrypted ? "Yes" : "No") << std::endl;
+    }
+
+    double calculateInstallationCost() const override {
+        return installationCost + numberOfNodes * 10;
+    }
+
+    double calculateInstallationCost(double discount) const override {
+        return LocalNetwork::calculateInstallationCost(discount) + numberOfNodes * 10;
+    }
+
+    static std::string getNetworkType() { return networkType; }
+
+    friend bool operator<(const PeerToPeerNetwork& lhs, const PeerToPeerNetwork& rhs) {
+        return lhs.calculateInstallationCost() < rhs.calculateInstallationCost();
+    }
 };
 
-// Класс для сетей типа клиент-сервер
+std::string PeerToPeerNetwork::networkType = "Peer-to-Peer";
+
 class ClientServerNetwork : private LocalNetwork {
 private:
-    int numberOfClients;  // Количество клиентов
-    bool hasFirewall;     // Наличие фаервола
+    int numberOfClients;
+    bool hasFirewall;
+    static std::string networkType;
 
 public:
-    ClientServerNetwork(std::string name, double cost, int speed, int clients, bool firewall);  // Конструктор
-    void showDetails() const override;  // Переопределенный метод для отображения характеристик
-    double calculateInstallationCost() const override;  // Переопределенный метод для расчета стоимости установки
-    double getMinimumCost() const;  // Минимальная стоимость установки
+    ClientServerNetwork(std::string name = "CS Network", double cost = 0.0, int speed = 0, int clients = 0, bool firewall = false)
+        : LocalNetwork(name, cost, speed), numberOfClients(clients), hasFirewall(firewall) {}
+
+    void showDetails() const override {
+        std::cout << std::setw(20) << networkName << std::setw(15) << installationCost
+                  << std::setw(15) << networkSpeed << std::setw(10) << numberOfClients
+                  << std::setw(10) << (hasFirewall ? "Yes" : "No") << std::endl;
+    }
+
+    double calculateInstallationCost() const override {
+        return installationCost + numberOfClients * 20 + (hasFirewall ? 50 : 0);
+    }
+
+    double calculateInstallationCost(double discount) const override {
+        return LocalNetwork::calculateInstallationCost(discount) + numberOfClients * 20 + (hasFirewall ? 50 : 0);
+    }
+
+    static std::string getNetworkType() { return networkType; }
+
+    friend bool operator<(const ClientServerNetwork& lhs, const ClientServerNetwork& rhs) {
+        return lhs.calculateInstallationCost() < rhs.calculateInstallationCost();
+    }
 };
 
-}
+std::string ClientServerNetwork::networkType = "Client-Server";
 
-#endif
+} // namespace Network
