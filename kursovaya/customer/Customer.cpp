@@ -9,7 +9,7 @@ void Customer::addOrder(const Pizza& order) {
     orders.push_back(order);
 }
 
-const std::vector<Pizza>& Customer::getOrders() const {
+const vector<Pizza>& Customer::getOrders() const {
     return orders;  // Возвращаем ссылку на вектор заказов
 }
 
