@@ -40,7 +40,7 @@ void Customer::removeOrder(int orderIndex) {
         return;
     }
     orders.erase(orders.begin() + orderIndex);
-    cout << "Заказ #" << orderIndex + 1 << " удален.\n";
+    cout << "Заказ #" << orderIndex + 1 << " завершен.\n";
 }
 
 // Очистить все заказы
@@ -55,11 +55,6 @@ void Customer::displayCustomerDetails() const {
     cout << "Имя: " << name << "\n";
     cout << "Адрес: " << address << "\n";
     cout << "Номер телефона: " << phone_number << "\n";
+    cout << "Количество заказов: " << orders.size() << "\n";
     cout << endl;
-
-    if (orders.empty()) {
-        cout << "Нет заказов.\n";
-    } else {
-        viewOrders();
-    }
 }

@@ -24,5 +24,5 @@ void Order::applyDiscount(float discount_percentage) {
 // Показать информацию о заказе
 void Order::displayOrderSummary() const {
     cout << "Заказ #" << order_number << " (" << order_date << ")\n";
-    customer->displayCustomerDetails();
+    customer->viewOrders();
 }

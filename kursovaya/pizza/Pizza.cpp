@@ -36,14 +36,14 @@ void Pizza::removeTopping(const string& topping) {
 
 // Показать детали пиццы
 void Pizza::showPizzaDetails() const {
-    cout << "Pizza Details:\n";
-    cout << "Size: " << (size == Size::Small ? "Small" : size == Size::Medium ? "Medium" : "Large") << "\n";
-    cout << "Crust: " << (crust == Crust::Thin ? "Thin" : crust == Crust::Thick ? "Thick" : "Stuffed") << "\n";
-    cout << "Toppings: ";
-    if (toppings.empty()) cout << "None";
+    cout << "Пицца:\n";
+    cout << "Размер: " << (size == Size::Small ? "Малая" : size == Size::Medium ? "Средняя" : "Большая") << "\n";
+    cout << "Тип: " << (crust == Crust::Thin ? "Тонкое тесто" : crust == Crust::Thick ? "Обычное тесто" : "Фаршированная корка") << "\n";
+    cout << "Топпинги: ";
+    if (toppings.empty()) cout << "Нет";
     else for (const auto& topping : toppings) cout << topping << " ";
     cout << "\n";
-    cout << fixed << setprecision(2) << "Final Price: $" << final_price << endl;
+    cout << fixed << setprecision(2) << "Цена: $" << final_price << endl;
 }
 
 // Получить финальную цену
